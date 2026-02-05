@@ -10,9 +10,10 @@ import HabitCard from "@/components/HabitCard";
 import BottomNav from "@/components/BottomNav";
 import EmptyState from "@/components/EmptyState";
 import DailyProgress from "@/components/DailyProgress";
+import ContributionGraph from "@/components/ContributionGraph";
 
 export default function HomePage() {
-  const { getAllHabitsWithStats, toggleCompletion, isLoaded } = useHabitStore();
+  const { getAllHabitsWithStats, toggleCompletion, completions, isLoaded } = useHabitStore();
   const [habitsWithStats, setHabitsWithStats] = useState(getAllHabitsWithStats());
 
   useEffect(() => {
@@ -81,29 +82,44 @@ export default function HomePage() {
         </div>
 
         <main className="max-w-2xl mx-auto px-4 pt-8 pb-4">
+          {/* Contribution graph */}
+          {totalCount > 0 && (
+            <div className="mb-6">
+              <ContributionGraph
+                completions={completions}
+                totalHabits={totalCount}
+              />
+            </div>
+          )}
+
           {/* Habit list */}
           {totalCount === 0 ? (
             <EmptyState />
           ) : (
-            <div className="space-y-3">
-              <AnimatePresence>
-                {habitsWithStats.map((habit, i) => (
-                  <HabitCard
-                    key={habit.id}
-                    habit={habit}
-                    index={i}
-                    onToggle={() => {
-                      const result = toggleCompletion(habit.id);
-                      setTimeout(
-                        () => setHabitsWithStats(getAllHabitsWithStats()),
-                        50
-                      );
-                      return result;
-                    }}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+            <>
+              <h2 className="text-xs font-bold text-earth-400 uppercase tracking-wider mb-3">
+                Today&apos;s Habits
+              </h2>
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {habitsWithStats.map((habit, i) => (
+                    <HabitCard
+                      key={habit.id}
+                      habit={habit}
+                      index={i}
+                      onToggle={() => {
+                        const result = toggleCompletion(habit.id);
+                        setTimeout(
+                          () => setHabitsWithStats(getAllHabitsWithStats()),
+                          50
+                        );
+                        return result;
+                      }}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            </>
           )}
         </main>
 
