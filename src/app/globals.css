@@ -2,26 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 36 43% 96%;
+    --foreground: 36 60% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 36 60% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 36 60% 9%;
+    --primary: 120 39% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 36 30% 90%;
+    --secondary-foreground: 36 60% 9%;
+    --muted: 36 30% 90%;
+    --muted-foreground: 36 20% 40%;
+    --accent: 36 30% 90%;
+    --accent-foreground: 36 60% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 36 30% 86%;
+    --input: 36 30% 86%;
+    --ring: 120 39% 39%;
+    --radius: 0.75rem;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-earth-50 text-earth-800 font-sans;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar for earthy theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f0e8dc;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4a882;
+  border-radius: 3px;
+}
+
+/* Safe area padding for PWA */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
