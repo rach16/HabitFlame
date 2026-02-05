@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FlameIcon from "@/components/FlameIcon";
-import StreakBadge from "@/components/StreakBadge";
 import CalendarView from "@/components/CalendarView";
 import CategoryPicker from "@/components/CategoryPicker";
 import ColorPicker from "@/components/ColorPicker";
@@ -84,14 +83,20 @@ export default function HabitDetailPage() {
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-2xl">🔥</div>
+        <motion.div
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="text-4xl"
+        >
+          🔥
+        </motion.div>
       </div>
     );
   }
 
   if (!habit) {
     return (
-      <div className="min-h-screen bg-earth-50">
+      <div className="min-h-screen">
         <div className="md:ml-20 lg:ml-56">
           <main className="max-w-2xl mx-auto px-4 pt-6">
             <Link
@@ -112,126 +117,128 @@ export default function HabitDetailPage() {
   const completions = getCompletionsForHabit(id);
 
   return (
-    <div className="min-h-screen bg-earth-50">
+    <div className="min-h-screen">
       <div className="md:ml-20 lg:ml-56">
-        <main className="max-w-2xl mx-auto px-4 pt-6 pb-4">
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <Link
-              href="/"
-              className="p-2 -ml-2 rounded-lg hover:bg-earth-100 text-earth-500"
-            >
-              <ArrowLeft size={20} />
-            </Link>
-            <div className="flex-1 flex items-center gap-2">
-              <span className="text-xl">{habit.category.emoji}</span>
-              <h1 className="text-xl font-bold text-earth-800 truncate">
-                {habit.name}
-              </h1>
-              <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: habit.color }}
-              />
+        {/* Hero header with habit color gradient */}
+        <div
+          className="text-white px-4 pt-6 pb-12 -mb-8 rounded-b-3xl shadow-lg relative overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${habit.color}ee 0%, ${habit.color}88 50%, ${habit.color}44 100%)`,
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+
+          <div className="max-w-2xl mx-auto relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <Link
+                href="/"
+                className="p-2 -ml-2 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <ArrowLeft size={20} />
+              </Link>
+              <div className="flex-1 flex items-center gap-2">
+                <span className="text-2xl">{habit.category.emoji}</span>
+                <h1 className="text-xl font-bold truncate">{habit.name}</h1>
+              </div>
+            </div>
+
+            {/* Streak hero inline */}
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <FlameIcon streak={habit.currentStreak} size={52} />
+              <div>
+                <div className="text-4xl font-bold">
+                  {habit.currentStreak}
+                </div>
+                <div className="text-sm text-white/70">day streak</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Streak hero */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-xl border border-earth-100 p-6 mb-4 text-center"
-          >
-            <div className="flex justify-center mb-3">
-              <FlameIcon streak={habit.currentStreak} size={48} />
-            </div>
-            <div className="text-3xl font-bold text-earth-800 mb-1">
-              {habit.currentStreak} day streak
-            </div>
-            <StreakBadge streak={habit.currentStreak} size="lg" showLabel />
-          </motion.div>
-
+        <main className="max-w-2xl mx-auto px-4 pt-4 pb-4">
           {/* Stats grid */}
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="bg-white rounded-xl border border-earth-100 p-4 text-center">
-              <Trophy size={18} className="mx-auto mb-1 text-flame-500" />
-              <div className="text-lg font-bold text-earth-800">
-                {habit.bestStreak}
-              </div>
-              <div className="text-[10px] text-earth-400">Best streak</div>
-            </div>
-            <div className="bg-white rounded-xl border border-earth-100 p-4 text-center">
-              <Target size={18} className="mx-auto mb-1 text-forest-500" />
-              <div className="text-lg font-bold text-earth-800">
-                {habit.completionRate}%
-              </div>
-              <div className="text-[10px] text-earth-400">30-day rate</div>
-            </div>
-            <div className="bg-white rounded-xl border border-earth-100 p-4 text-center">
-              <Calendar size={18} className="mx-auto mb-1 text-earth-500" />
-              <div className="text-lg font-bold text-earth-800">
-                {habit.totalCompletions}
-              </div>
-              <div className="text-[10px] text-earth-400">Total days</div>
-            </div>
+            {[
+              { icon: Trophy, color: "text-flame-500", bg: "from-orange-50 to-flame-100/30", label: "Best streak", value: habit.bestStreak },
+              { icon: Target, color: "text-forest-500", bg: "from-forest-50 to-forest-100/30", label: "30-day rate", value: `${habit.completionRate}%` },
+              { icon: Calendar, color: "text-earth-500", bg: "from-earth-50 to-earth-100/30", label: "Total days", value: habit.totalCompletions },
+            ].map((stat) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`bg-gradient-to-br ${stat.bg} rounded-2xl border border-white/60 p-4 text-center shadow-md shadow-earth-200/20`}
+              >
+                <stat.icon size={18} className={`mx-auto mb-1.5 ${stat.color}`} />
+                <div className="text-xl font-bold text-earth-800">
+                  {stat.value}
+                </div>
+                <div className="text-[10px] font-medium text-earth-400 mt-0.5">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
           </div>
 
           {/* Calendar */}
           <div className="mb-6">
-            <h2 className="text-sm font-semibold text-earth-700 mb-3">
+            <h2 className="text-xs font-bold text-earth-400 uppercase tracking-wider mb-3">
               Completion History
             </h2>
             <CalendarView completions={completions} habitColor={habit.color} />
           </div>
 
-          {/* Edit section */}
+          {/* Actions */}
           {isEditing ? (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="bg-white rounded-xl border border-earth-100 p-4 mb-4 space-y-4"
+              className="bg-white/90 backdrop-blur-sm rounded-2xl border border-earth-100 p-5 mb-4 space-y-4 shadow-md"
             >
               <div className="space-y-2">
-                <Label className="text-earth-700">Habit name</Label>
+                <Label className="text-sm font-semibold text-earth-700">Habit name</Label>
                 <Input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   maxLength={50}
-                  className="bg-white border-earth-200"
+                  className="bg-white border-earth-200 h-11 rounded-xl"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-earth-700">Category</Label>
+                <Label className="text-sm font-semibold text-earth-700">Category</Label>
                 <CategoryPicker
                   selected={editCategory}
                   onSelect={setEditCategory}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-earth-700">Color</Label>
+                <Label className="text-sm font-semibold text-earth-700">Color</Label>
                 <ColorPicker selected={editColor} onSelect={setEditColor} />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3 pt-2">
                 <Button
                   variant="outline"
                   onClick={() => setIsEditing(false)}
-                  className="flex-1"
+                  className="flex-1 rounded-xl h-11"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSaveEdit}
-                  className="flex-1 bg-forest-500 hover:bg-forest-600 text-white"
+                  className="flex-1 gradient-forest text-white rounded-xl h-11 shadow-md shadow-forest-600/20"
                 >
                   Save Changes
                 </Button>
               </div>
             </motion.div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Button
                 variant="outline"
                 onClick={() => setIsEditing(true)}
-                className="w-full justify-start gap-2 border-earth-200 text-earth-600"
+                className="w-full justify-start gap-2 rounded-xl h-12 border-earth-100 bg-white/80 text-earth-600 hover:bg-white shadow-sm"
               >
                 <Edit3 size={16} />
                 Edit Habit
@@ -239,7 +246,7 @@ export default function HabitDetailPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowArchiveDialog(true)}
-                className="w-full justify-start gap-2 border-earth-200 text-earth-400"
+                className="w-full justify-start gap-2 rounded-xl h-12 border-earth-100 bg-white/80 text-earth-400 hover:bg-white shadow-sm"
               >
                 <Archive size={16} />
                 Archive Habit
@@ -247,7 +254,7 @@ export default function HabitDetailPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteDialog(true)}
-                className="w-full justify-start gap-2 border-red-200 text-red-500 hover:bg-red-50"
+                className="w-full justify-start gap-2 rounded-xl h-12 border-red-100 bg-red-50/50 text-red-500 hover:bg-red-50 shadow-sm"
               >
                 <Trash2 size={16} />
                 Delete Habit

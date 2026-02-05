@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useHabitStore } from "@/hooks/useHabitStore";
 import { formatDisplayDate } from "@/lib/utils";
@@ -22,42 +22,76 @@ export default function HomePage() {
   const today = new Date();
   const completedCount = habitsWithStats.filter((h) => h.completedToday).length;
   const totalCount = habitsWithStats.length;
+  const allDone = completedCount === totalCount && totalCount > 0;
 
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-2xl">🔥</div>
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="text-4xl"
+        >
+          🔥
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-earth-50">
+    <div className="min-h-screen">
       <div className="md:ml-20 lg:ml-56">
-        <main className="max-w-2xl mx-auto px-4 pt-6 pb-4">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-earth-800">Today</h1>
-              <p className="text-sm text-earth-400">
-                {formatDisplayDate(today)}
-              </p>
+        {/* Hero header with gradient */}
+        <div className="gradient-header text-white px-4 pt-8 pb-10 -mb-6 rounded-b-3xl shadow-lg shadow-forest-900/20 relative overflow-hidden">
+          {/* Decorative circles */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-8 w-20 h-20 bg-white/5 rounded-full translate-y-1/2" />
+
+          <div className="max-w-2xl mx-auto relative z-10">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">🔥</span>
+                  <span className="text-xs font-medium text-white/60 uppercase tracking-wider">
+                    HabitFlame
+                  </span>
+                </div>
+                <h1 className="text-3xl font-bold">Today</h1>
+                <p className="text-sm text-white/70 mt-0.5">
+                  {formatDisplayDate(today)}
+                </p>
+              </div>
+              {totalCount > 0 && (
+                <DailyProgress completed={completedCount} total={totalCount} />
+              )}
             </div>
-            {totalCount > 0 && (
-              <DailyProgress completed={completedCount} total={totalCount} />
+            {allDone && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2"
+              >
+                <Sparkles size={16} className="text-yellow-300" />
+                <span className="text-sm font-medium">
+                  All habits done today! Keep the flame alive!
+                </span>
+              </motion.div>
             )}
           </div>
+        </div>
 
+        <main className="max-w-2xl mx-auto px-4 pt-8 pb-4">
           {/* Habit list */}
           {totalCount === 0 ? (
             <EmptyState />
           ) : (
             <div className="space-y-3">
               <AnimatePresence>
-                {habitsWithStats.map((habit) => (
+                {habitsWithStats.map((habit, i) => (
                   <HabitCard
                     key={habit.id}
                     habit={habit}
+                    index={i}
                     onToggle={() => {
                       const result = toggleCompletion(habit.id);
                       setTimeout(
@@ -73,17 +107,17 @@ export default function HomePage() {
           )}
         </main>
 
-        {/* FAB for mobile */}
+        {/* FAB */}
         <motion.div
           className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           <Link
             href="/add"
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-forest-500 text-white shadow-lg hover:bg-forest-600 transition-colors"
+            className="flex items-center justify-center w-14 h-14 rounded-full gradient-forest text-white shadow-xl shadow-forest-700/40 hover:shadow-forest-700/60 transition-shadow"
           >
-            <Plus size={24} />
+            <Plus size={26} strokeWidth={2.5} />
           </Link>
         </motion.div>
       </div>

@@ -37,32 +37,32 @@ export default function CalendarView({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-earth-100 p-4">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-earth-100 p-5 shadow-md shadow-earth-200/20">
       {/* Month navigation */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={() => setCurrentMonth((prev) => subMonths(prev, 1))}
-          className="p-2 rounded-lg hover:bg-earth-50 text-earth-500"
+          className="p-2 rounded-xl hover:bg-earth-50 text-earth-400 transition-colors"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={18} />
         </button>
-        <h3 className="text-sm font-semibold text-earth-700">
+        <h3 className="text-sm font-bold text-earth-700 uppercase tracking-wide">
           {format(currentMonth, "MMMM yyyy")}
         </h3>
         <button
           onClick={() => setCurrentMonth((prev) => addMonths(prev, 1))}
-          className="p-2 rounded-lg hover:bg-earth-50 text-earth-500"
+          className="p-2 rounded-xl hover:bg-earth-50 text-earth-400 transition-colors"
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={18} />
         </button>
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-1 mb-3">
         {WEEKDAYS.map((day) => (
           <div
             key={day}
-            className="text-center text-[10px] font-medium text-earth-400 py-1"
+            className="text-center text-[10px] font-bold text-earth-300 py-1 uppercase"
           >
             {day}
           </div>
@@ -83,18 +83,30 @@ export default function CalendarView({
           return (
             <motion.div
               key={dateStr}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.01 }}
               className="aspect-square flex items-center justify-center relative"
             >
               {isToday && (
-                <div className="absolute inset-1 rounded-lg border-2 border-forest-300" />
+                <div className="absolute inset-0.5 rounded-xl border-2 border-forest-400/50" />
               )}
               <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-colors ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-all ${
                   isCompleted
-                    ? "text-white font-medium"
-                    : "text-earth-500"
+                    ? "text-white shadow-sm"
+                    : isToday
+                    ? "text-forest-600 font-bold"
+                    : "text-earth-400"
                 }`}
-                style={isCompleted ? { backgroundColor: habitColor } : {}}
+                style={
+                  isCompleted
+                    ? {
+                        background: `linear-gradient(135deg, ${habitColor}, ${habitColor}cc)`,
+                        boxShadow: `0 2px 8px ${habitColor}40`,
+                      }
+                    : {}
+                }
               >
                 {day}
               </div>
