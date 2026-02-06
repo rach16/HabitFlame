@@ -1,13 +1,13 @@
 import { HabitCategory, StreakTier } from "./types";
 
 export const DEFAULT_CATEGORIES: HabitCategory[] = [
+  { id: "coding", name: "Coding", emoji: "\u{1F4BB}" },
+  { id: "gym", name: "Gym", emoji: "\u{1F3CB}\uFE0F" },
+  { id: "running", name: "Running", emoji: "\u{1F3C3}" },
+  { id: "work", name: "Work", emoji: "\u{1F4BC}" },
+  { id: "reading", name: "Reading", emoji: "\u{1F4D6}" },
+  { id: "cleaning", name: "Cleaning", emoji: "\u{1F9F9}" },
   { id: "health", name: "Health", emoji: "\u{1F4AA}" },
-  { id: "learning", name: "Learning", emoji: "\u{1F4DA}" },
-  { id: "finance", name: "Finance", emoji: "\u{1F4B0}" },
-  { id: "mindfulness", name: "Mindfulness", emoji: "\u{1F9D8}" },
-  { id: "productivity", name: "Productivity", emoji: "\u26A1" },
-  { id: "social", name: "Social", emoji: "\u{1F465}" },
-  { id: "creative", name: "Creative", emoji: "\u{1F3A8}" },
   { id: "other", name: "Other", emoji: "\u2728" },
 ];
 

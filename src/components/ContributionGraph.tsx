@@ -9,9 +9,10 @@ import { format, subDays, startOfWeek, addDays } from "date-fns";
 interface ContributionGraphProps {
   completions: HabitCompletion[];
   totalHabits: number;
+  weeks?: number;
+  accentColor?: string;
 }
 
-const WEEKS_TO_SHOW = 20;
 const DAY_LABELS = ["Mon", "", "Wed", "", "Fri", "", "Sun"];
 
 function getIntensityLevel(count: number, totalHabits: number): number {
@@ -24,25 +25,14 @@ function getIntensityLevel(count: number, totalHabits: number): number {
   return 4;
 }
 
-const INTENSITY_COLORS = [
-  "bg-earth-100",
-  "bg-forest-200",
-  "bg-forest-400",
-  "bg-forest-600",
-  "bg-forest-800",
-];
-
-const INTENSITY_RING_COLORS = [
-  "",
-  "ring-forest-200/50",
-  "ring-forest-400/50",
-  "ring-forest-600/50",
-  "ring-forest-800/50",
-];
+// Opacity levels for custom color mode
+const INTENSITY_OPACITIES = [0.08, 0.25, 0.5, 0.75, 1.0];
 
 export default function ContributionGraph({
   completions,
   totalHabits,
+  weeks: weeksToShow = 16,
+  accentColor,
 }: ContributionGraphProps) {
   const { weeks, monthLabels } = useMemo(() => {
     const today = new Date();
@@ -51,9 +41,8 @@ export default function ContributionGraph({
       completionCounts.set(c.date, (completionCounts.get(c.date) || 0) + 1);
     });
 
-    // Start from the Monday of (WEEKS_TO_SHOW) weeks ago
     const startDate = startOfWeek(
-      subDays(today, WEEKS_TO_SHOW * 7),
+      subDays(today, weeksToShow * 7),
       { weekStartsOn: 1 }
     );
 
@@ -69,7 +58,7 @@ export default function ContributionGraph({
       for (let day = 0; day < 7; day++) {
         const d = addDays(currentDate, day);
         if (d > today) {
-          week.push({ date: d, dateStr: "", count: -1, level: -1 }); // future
+          week.push({ date: d, dateStr: "", count: -1, level: -1 });
         } else {
           const dateStr = formatDate(d);
           const count = completionCounts.get(dateStr) || 0;
@@ -81,13 +70,9 @@ export default function ContributionGraph({
           });
         }
 
-        // Track month labels
         if (d.getMonth() !== lastMonth && d <= today) {
           lastMonth = d.getMonth();
-          months.push({
-            label: format(d, "MMM"),
-            colIndex: weekIndex,
-          });
+          months.push({ label: format(d, "MMM"), colIndex: weekIndex });
         }
       }
       weeksData.push(week);
@@ -96,102 +81,73 @@ export default function ContributionGraph({
     }
 
     return { weeks: weeksData, monthLabels: months };
-  }, [completions, totalHabits]);
-
-  const totalDaysActive = useMemo(() => {
-    const uniqueDates = new Set(completions.map((c) => c.date));
-    return uniqueDates.size;
-  }, [completions]);
+  }, [completions, totalHabits, weeksToShow]);
 
   const todayStr = formatDate(new Date());
+  const baseColor = accentColor || "#3d8b3d";
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-earth-100 p-5 shadow-md shadow-earth-200/20">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xs font-bold text-earth-400 uppercase tracking-wider">
-          Activity
-        </h2>
-        <div className="flex items-center gap-1.5 text-[10px] text-earth-400">
-          <span>{totalDaysActive} active days</span>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto -mx-1 px-1">
-        <div className="inline-flex flex-col gap-0 min-w-fit">
-          {/* Month labels */}
-          <div className="flex mb-1.5" style={{ paddingLeft: "28px" }}>
-            {weeks.map((_, weekIdx) => {
-              const monthLabel = monthLabels.find((m) => m.colIndex === weekIdx);
-              return (
-                <div
-                  key={`month-${weekIdx}`}
-                  className="text-[10px] text-earth-400 font-medium"
-                  style={{ width: "14px", minWidth: "14px" }}
-                >
-                  {monthLabel ? monthLabel.label : ""}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Grid: day labels + cells */}
-          {Array.from({ length: 7 }).map((_, dayIdx) => (
-            <div key={`row-${dayIdx}`} className="flex items-center">
+    <div className="overflow-x-auto -mx-1 px-1">
+      <div className="inline-flex flex-col gap-0 min-w-fit">
+        {/* Month labels */}
+        <div className="flex mb-1" style={{ paddingLeft: "24px" }}>
+          {weeks.map((_, weekIdx) => {
+            const monthLabel = monthLabels.find((m) => m.colIndex === weekIdx);
+            return (
               <div
-                className="text-[9px] text-earth-300 font-medium pr-1.5 text-right"
-                style={{ width: "28px", minWidth: "28px" }}
+                key={`month-${weekIdx}`}
+                className="text-[9px] text-earth-400 font-medium"
+                style={{ width: "13px", minWidth: "13px" }}
               >
-                {DAY_LABELS[dayIdx]}
+                {monthLabel ? monthLabel.label : ""}
               </div>
-              <div className="flex gap-[2px]">
-                {weeks.map((week, weekIdx) => {
-                  const day = week[dayIdx];
-                  if (!day || day.count === -1) {
-                    return (
-                      <div
-                        key={`cell-${weekIdx}-${dayIdx}`}
-                        className="w-[12px] h-[12px] rounded-[2px] bg-earth-50/50"
-                      />
-                    );
-                  }
+            );
+          })}
+        </div>
 
-                  const isToday = day.dateStr === todayStr;
-
+        {/* Grid */}
+        {Array.from({ length: 7 }).map((_, dayIdx) => (
+          <div key={`row-${dayIdx}`} className="flex items-center">
+            <div
+              className="text-[8px] text-earth-300 font-medium pr-1 text-right"
+              style={{ width: "24px", minWidth: "24px" }}
+            >
+              {DAY_LABELS[dayIdx]}
+            </div>
+            <div className="flex gap-[2px]">
+              {weeks.map((week, weekIdx) => {
+                const day = week[dayIdx];
+                if (!day || day.count === -1) {
                   return (
-                    <motion.div
+                    <div
                       key={`cell-${weekIdx}-${dayIdx}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: (weekIdx * 7 + dayIdx) * 0.002 }}
-                      className={`w-[12px] h-[12px] rounded-[2px] transition-colors ${
-                        INTENSITY_COLORS[day.level]
-                      } ${
-                        isToday
-                          ? "ring-2 ring-forest-500 ring-offset-1"
-                          : day.level > 0
-                          ? `ring-1 ${INTENSITY_RING_COLORS[day.level]}`
-                          : ""
-                      }`}
-                      title={`${format(day.date, "MMM d, yyyy")}: ${day.count} completion${day.count !== 1 ? "s" : ""}`}
+                      className="w-[11px] h-[11px] rounded-[2px]"
+                      style={{ backgroundColor: `${baseColor}0a` }}
                     />
                   );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+                }
 
-      {/* Legend */}
-      <div className="flex items-center justify-end gap-1.5 mt-3">
-        <span className="text-[10px] text-earth-300 mr-1">Less</span>
-        {INTENSITY_COLORS.map((color, i) => (
-          <div
-            key={i}
-            className={`w-[10px] h-[10px] rounded-[2px] ${color}`}
-          />
+                const isToday = day.dateStr === todayStr;
+
+                return (
+                  <motion.div
+                    key={`cell-${weekIdx}-${dayIdx}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: (weekIdx * 7 + dayIdx) * 0.001 }}
+                    className={`w-[11px] h-[11px] rounded-[2px] ${
+                      isToday ? "ring-1 ring-earth-800 ring-offset-1" : ""
+                    }`}
+                    style={{
+                      backgroundColor: `${baseColor}${Math.round(INTENSITY_OPACITIES[day.level] * 255).toString(16).padStart(2, "0")}`,
+                    }}
+                    title={`${format(day.date, "MMM d, yyyy")}: ${day.count} completion${day.count !== 1 ? "s" : ""}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
         ))}
-        <span className="text-[10px] text-earth-300 ml-1">More</span>
       </div>
     </div>
   );
